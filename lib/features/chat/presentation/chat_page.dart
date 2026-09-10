@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../services/chat_service.dart';
@@ -69,10 +68,8 @@ class _ChatPageState extends State<ChatPage> {
   Future<Map<String, dynamic>> _withSender(Map<String, dynamic> row) async {
     if (row['sender'] != null) return row;
     final p = await SupabaseService.client
-        .from('profiles')
-        .select('name, username, avatar_url')
-        .eq('id', row['sender_id'])
-        .maybeSingle();
+        .from('profiles').select('name, username, avatar_url')
+        .eq('id', row['sender_id']).maybeSingle();
     return {...row, 'sender': p ?? <String, dynamic>{}};
   }
 
@@ -101,7 +98,6 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  /// content খালি হলে '[media]' দেখাবে — nested quote ছাড়া
   String _textOf(dynamic content) {
     if (content == null || content.toString().isEmpty) return '[media]';
     return content.toString();
@@ -121,23 +117,16 @@ class _ChatPageState extends State<ChatPage> {
       context: context,
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(
-              leading: const Icon(Icons.image),
-              title: const Text('Image'),
+          ListTile(leading: const Icon(Icons.image), title: const Text('Image'),
               onTap: () => Navigator.pop(context, 'image')),
-          ListTile(
-              leading: const Icon(Icons.videocam),
-              title: const Text('Video'),
+          ListTile(leading: const Icon(Icons.videocam), title: const Text('Video'),
               onTap: () => Navigator.pop(context, 'video')),
-          ListTile(
-              leading: const Icon(Icons.attach_file),
-              title: const Text('File'),
+          ListTile(leading: const Icon(Icons.attach_file), title: const Text('File'),
               onTap: () => Navigator.pop(context, 'file')),
         ]),
       ),
     );
     if (choice == null) return;
-
     setState(() => _sendingMedia = true);
     try {
       String type;
@@ -157,8 +146,7 @@ class _ChatPageState extends State<ChatPage> {
         final f = r?.files.single;
         if (f == null || f.bytes == null) return;
         type = 'file';
-        url = (await CloudinaryService.uploadFile(
-            f.bytes!.toList(), f.name))['url']!;
+        url = (await CloudinaryService.uploadFile(f.bytes!.toList(), f.name))['url']!;
       }
       await ChatService.sendMessage(widget.conversationId,
           type: type, mediaUrl: url);
@@ -172,22 +160,16 @@ class _ChatPageState extends State<ChatPage> {
       context: context,
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(
-              leading: const Icon(Icons.reply),
-              title: const Text('Reply'),
+          ListTile(leading: const Icon(Icons.reply), title: const Text('Reply'),
               onTap: () => Navigator.pop(context, 'reply')),
           ListTile(
               leading: Icon(m['is_pinned'] == true
-                  ? Icons.push_pin_outlined
-                  : Icons.push_pin),
+                  ? Icons.push_pin_outlined : Icons.push_pin),
               title: Text(m['is_pinned'] == true ? 'Unpin' : 'Pin'),
               onTap: () => Navigator.pop(context, 'pin')),
-          ListTile(
-              leading: const Icon(Icons.forward),
-              title: const Text('Forward'),
+          ListTile(leading: const Icon(Icons.forward), title: const Text('Forward'),
               onTap: () => Navigator.pop(context, 'forward')),
-          ListTile(
-              leading: const Icon(Icons.delete_outline),
+          ListTile(leading: const Icon(Icons.delete_outline),
               title: const Text('Delete'),
               onTap: () => Navigator.pop(context, 'delete')),
         ]),
@@ -207,19 +189,14 @@ class _ChatPageState extends State<ChatPage> {
       if (!mounted) return;
       final target = await showDialog<String>(
         context: context,
-        builder: (_) => SimpleDialog(
-          title: const Text('Forward করুন'),
-          children: [
-            for (final c in convs)
-              SimpleDialogOption(
-                onPressed: () =>
-                    Navigator.pop(context, c['id'] as String),
-                child: Text(c['type'] == 'group'
-                    ? (c['name'] ?? 'Group')
-                    : 'Direct chat'),
-              ),
-          ],
-        ),
+        builder: (_) => SimpleDialog(title: const Text('Forward করুন'), children: [
+          for (final c in convs)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, c['id'] as String),
+              child: Text(c['type'] == 'group'
+                  ? (c['name'] ?? 'Group') : 'Direct chat'),
+            ),
+        ]),
       );
       if (target != null) {
         await ChatService.sendMessage(target,
@@ -236,24 +213,18 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final otherOnline =
-        !widget.isGroup && _online.contains(widget.otherUserId);
+    final otherOnline = !widget.isGroup && _online.contains(widget.otherUserId);
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.title),
-            Text(
-              _typing
-                  ? 'typing…'
-                  : widget.isGroup
-                      ? 'Group'
-                      : (otherOnline ? 'online' : 'offline'),
-              style: const TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
+        title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(widget.title),
+          Text(
+            _typing ? 'typing…'
+                : widget.isGroup ? 'Group'
+                : (otherOnline ? 'online' : 'offline'),
+            style: const TextStyle(fontSize: 12),
+          ),
+        ]),
       ),
       body: Column(children: [
         if (_pinned.isNotEmpty)
@@ -261,17 +232,11 @@ class _ChatPageState extends State<ChatPage> {
             width: double.infinity,
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final p in _pinned.take(3))
-                  Text(
-                    '📌 ${_textOf(p['content'])}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              for (final p in _pinned.take(3))
+                Text('📌 ${_textOf(p['content'])}',
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+            ]),
           ),
         if (_sendingMedia) const LinearProgressIndicator(),
         Expanded(
@@ -288,16 +253,11 @@ class _ChatPageState extends State<ChatPage> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Row(children: [
               Expanded(
-                child: Text(
-                  'Reply: ${_textOf(_replyTo!['content'])}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Text('Reply: ${_textOf(_replyTo!['content'])}',
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                onPressed: () => setState(() => _replyTo = null),
-              ),
+              IconButton(icon: const Icon(Icons.close, size: 18),
+                  onPressed: () => setState(() => _replyTo = null)),
             ]),
           ),
         SafeArea(
@@ -307,8 +267,7 @@ class _ChatPageState extends State<ChatPage> {
               child: TextField(
                 controller: _input,
                 decoration: const InputDecoration(hintText: 'Message লিখুন…'),
-                onChanged: (_) =>
-                    ChatService.sendTyping(widget.conversationId),
+                onChanged: (_) => ChatService.sendTyping(widget.conversationId),
                 onSubmitted: (_) => _send(),
               ),
             ),
@@ -344,48 +303,31 @@ class _ChatPageState extends State<ChatPage> {
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.isGroup && !mine)
-                Text(
-                  sender?['name'] ?? '',
-                  style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.bold),
-                ),
-              if (replied != null)
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  margin: const EdgeInsets.only(bottom: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _textOf(replied['content']),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                ),
-              _content(m),
-              const SizedBox(height: 2),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(
-                  _time(m['created_at']),
-                  style: const TextStyle(fontSize: 9),
-                ),
-                if (mine && !widget.isGroup) ...[
-                  const SizedBox(width: 4),
-                  Icon(
-                    _isSeen(m) ? Icons.done_all : Icons.done,
-                    size: 12,
-                    color: _isSeen(m) ? Colors.blue : null,
-                  ),
-                ],
-              ]),
-            ],
-          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (widget.isGroup && !mine)
+              Text(sender?['name'] ?? '',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            if (replied != null)
+              Container(
+                padding: const EdgeInsets.all(4),
+                margin: const EdgeInsets.only(bottom: 4),
+                decoration: BoxDecoration(
+                    color: Colors.black12, borderRadius: BorderRadius.circular(6)),
+                child: Text(_textOf(replied['content']),
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11)),
+              ),
+            _content(m),
+            const SizedBox(height: 2),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Text(_time(m['created_at']), style: const TextStyle(fontSize: 9)),
+              if (mine && !widget.isGroup) ...[
+                const SizedBox(width: 4),
+                Icon(_isSeen(m) ? Icons.done_all : Icons.done,
+                    size: 12, color: _isSeen(m) ? Colors.blue : null),
+              ],
+            ]),
+          ]),
         ),
       ),
     );
@@ -411,9 +353,7 @@ class _ChatPageState extends State<ChatPage> {
           onTap: () => launchUrl(Uri.parse(m['media_url']),
               mode: LaunchMode.externalApplication),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(m['type'] == 'audio'
-                ? Icons.audiotrack
-                : Icons.insert_drive_file),
+            Icon(m['type'] == 'audio' ? Icons.audiotrack : Icons.insert_drive_file),
             const SizedBox(width: 8),
             const Text('File'),
           ]),
@@ -425,8 +365,6 @@ class _ChatPageState extends State<ChatPage> {
 
   String _time(String iso) {
     final t = DateTime.parse(iso).toLocal();
-    final h = t.hour.toString().padLeft(2, '0');
-    final min = t.minute.toString().padLeft(2, '0');
-    return '$h:$min';
+    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
   }
 }

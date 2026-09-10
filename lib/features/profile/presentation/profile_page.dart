@@ -69,15 +69,29 @@ class _ProfilePageState extends State<ProfilePage> {
               ]),
               const SizedBox(height: 8),
               ListTile(
+                leading: const Icon(Icons.stars),
+                title: const Text('🏆 Rewards & Level'),
+                onTap: () => context.push('/rewards'),
+              ),
+              ListTile(
                 leading: const Icon(Icons.dashboard_customize),
                 title: const Text('🎨 Creator Studio'),
                 onTap: () => context.push('/creator-studio'),
               ),
               ListTile(
+                leading: const Icon(Icons.smart_toy),
+                title: const Text('🤖 ENJOY AI'),
+                onTap: () => context.push('/ai'),
+              ),
+              ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('⚙️ Settings'),
-                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Settings — পরের Phase'))),
+                onTap: () => context.push('/settings'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.help_outline),
+                title: const Text('🛠️ Help & Recovery'),
+                onTap: () => context.push('/help'),
               ),
             ]),
     );

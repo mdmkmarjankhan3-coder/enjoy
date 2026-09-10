@@ -17,7 +17,6 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final started = await SupabaseService.signInWithGoogle();
       if (started && mounted) {
-        // Web-এ OAuth redirect হয়; session check হবে app restart/splash-এ
         context.go('/splash');
       }
     } finally {
@@ -34,8 +33,13 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('🌟 ENJOY',
-                  style: Theme.of(context).textTheme.displaySmall),
+              Image.asset(
+                'assets/images/logo.png',
+                width: 120,
+                height: 120,
+                errorBuilder: (_, __, ___) =>
+                    const Text('🌟 ENJOY', style: TextStyle(fontSize: 36)),
+              ),
               const SizedBox(height: 8),
               const Text('One App • One Account • One Ecosystem'),
               const SizedBox(height: 48),

@@ -8,6 +8,7 @@ import '../../../services/supabase_service.dart';
 class TicTacToePage extends StatefulWidget {
   const TicTacToePage({super.key, required this.matchId});
   final String matchId;
+
   @override
   State<TicTacToePage> createState() => _TicTacToePageState();
 }
@@ -19,27 +20,28 @@ class _TicTacToePageState extends State<TicTacToePage> {
   bool _myTurn = false;
   String? _statusText;
   RealtimeChannel? _ch;
+
   String get _uid => _c.auth.currentUser!.id;
-  
+
   @override
   void initState() {
     super.initState();
     _init();
   }
-  
+
   Future<void> _init() async {
     var m = await _c
-       .from('game_matches')
-       .select()
-       .eq('id', widget.matchId)
-       .single();
-    if (m['status'] == 'waiting' && m['player1']!= _uid) {
+        .from('game_matches')
+        .select()
+        .eq('id', widget.matchId)
+        .single();
+    if (m['status'] == 'waiting' && m['player1'] != _uid) {
       await GamesService.joinMatch(widget.matchId);
       m = await _c
-         .from('game_matches')
-         .select()
-         .eq('id', widget.matchId)
-         .single();
+          .from('game_matches')
+          .select()
+          .eq('id', widget.matchId)
+          .single();
     }
     if (!mounted) return;
     setState(() {
@@ -47,21 +49,26 @@ class _TicTacToePageState extends State<TicTacToePage> {
       _myTurn = m['player1'] == _uid;
     });
     _ch = _c
-       .channel('match_${widget.matchId}')
-       .onBroadcast(
+        .channel('match_${widget.matchId}')
+        .onBroadcast(
           event: 'move',
           callback: (msg) {
             final p = msg as Map;
             _applyRemote(p['index'] as int, p['symbol'] as String);
           },
         )
-       .subscribe();
+        .subscribe();
   }
-  
-  String get _mySymbol => _match?['player1'] == _uid? 'X' : 'O';
-  String? _ownerOf(String symbol) =>
-      symbol == 'X'? _match?['player1'] as String? : _match?['player2'] as String?;
-  
+
+  String get _mySymbol => _match?['player1'] == _uid ? 'X' : 'O';
+
+  String? _ownerOf(String symbol) {
+    if (symbol == 'X') {
+      return _match?['player1'] as String?;
+    }
+    return _match?['player2'] as String?;
+  }
+
   bool _checkWin(String s) {
     const lines = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -75,48 +82,48 @@ class _TicTacToePageState extends State<TicTacToePage> {
     }
     return false;
   }
-  
+
   void _tap(int i) {
-    if (!_myTurn || _board[i].isNotEmpty || _statusText!= null) return;
+    if (!_myTurn || _board[i].isNotEmpty || _statusText != null) return;
     _apply(i, _mySymbol);
     _ch?.sendBroadcastMessage(
         event: 'move', payload: {'index': i, 'symbol': _mySymbol});
   }
-  
+
   void _apply(int i, String symbol) {
     setState(() => _board[i] = symbol);
     if (_checkWin(symbol)) {
       _finish(_ownerOf(symbol));
-    } else if (!_board.contains('')) { // <-- এই লাইন টা ঠিক আছে
+    } else if (!_board.contains('')) {
       _finish(null);
     } else {
-      setState(() => _myTurn =!_myTurn);
+      setState(() => _myTurn = !_myTurn);
     }
   }
-  
+
   void _applyRemote(int i, String symbol) {
-    if (_board[i].isNotEmpty || _statusText!= null) return;
+    if (_board[i].isNotEmpty || _statusText != null) return;
     _apply(i, symbol);
   }
-  
+
   Future<void> _finish(String? winnerId) async {
     setState(() {
       _statusText = winnerId == null
-         ? 'Draw!'
-          : (winnerId == _uid? 'আপনি জিতেছেন!' : 'আপনি হেরেছেন');
+          ? 'Draw!'
+          : (winnerId == _uid ? 'আপনি জিতেছেন! 🎉' : 'আপনি হেরেছেন');
     });
     await GamesService.finishMatch(widget.matchId, winnerId);
     if (winnerId == _uid) {
       await BadgeService.award('game_champion');
     }
   }
-  
+
   @override
   void dispose() {
     _ch?.unsubscribe();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,13 +131,13 @@ class _TicTacToePageState extends State<TicTacToePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (_statusText!= null)
+          if (_statusText != null)
             Text(
               _statusText!,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           Text(
-            'আপনি: $_mySymbol • ${_myTurn? 'আপনার চাল' : 'অপেক্ষা করুন'}',
+            'আপনি: $_mySymbol • ${_myTurn ? 'আপনার চাল' : 'অপেক্ষা করুন'}',
           ),
           const SizedBox(height: 16),
           Center(
@@ -162,7 +169,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
             ),
           ),
           const SizedBox(height: 16),
-          if (_statusText!= null)
+          if (_statusText != null)
             FilledButton(
               onPressed: () => context.go('/home'),
               child: const Text('Home'),

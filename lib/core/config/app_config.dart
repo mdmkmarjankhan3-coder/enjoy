@@ -6,5 +6,9 @@ class AppConfig {
 
   // ☁️ Cloudinary
   static const String cloudinaryCloudName = 'sanok7qi';
-  static const String cloudinaryUploadPreset = 'WrZyYWwJSvZ31SquE8Z3S8vBIiU';
+  static const String cloudinaryUploadPreset = 'enjoy_upload';
+
+  // 🤖 ENJOY AI — খালি রাখলে built-in local assistant কাজ করবে
+  static const String aiEndpoint = ''; // e.g. https://your-server.com/ai
+  static const String aiApiKey = '';
 }

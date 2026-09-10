@@ -42,7 +42,12 @@ class _QuizPageState extends State<QuizPage> {
     setState(() => _busy = true);
     final pct = await LearningService.submitQuiz(
         widget.courseId, _questions, _answers.map((e) => e!).toList());
-    if (mounted) setState(() { _score = pct; _busy = false; });
+    if (mounted) {
+      setState(() {
+        _score = pct;
+        _busy = false;
+      });
+    }
   }
 
   @override
@@ -55,14 +60,10 @@ class _QuizPageState extends State<QuizPage> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(passed ? Icons.emoji_events : Icons.sentiment_dissatisfied,
                 size: 64, color: passed ? Colors.amber : Colors.grey),
-            Text('$_score%',
-                style: Theme.of(context).textTheme.displaySmall),
+            Text('$_score%', style: Theme.of(context).textTheme.displaySmall),
             Text(passed ? 'পাস! 🎉' : 'Fail — আবার চেষ্টা করুন'),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => context.pop(),
-              child: const Text('Back'),
-            ),
+            FilledButton(onPressed: () => context.pop(), child: const Text('Back')),
           ]),
         ),
       );
@@ -88,15 +89,19 @@ class _QuizPageState extends State<QuizPage> {
                     children: [
                       Text('${i + 1}. ${q['q'] ?? ''}',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
-                      for (var oi = 0; oi < options.length; oi++)
-                        RadioListTile<int>(
-                          dense: true,
-                          title: Text('${options[oi]}'),
-                          value: oi,
-                          groupValue: _answers[i],
-                          onChanged: (v) =>
-                              setState(() => _answers[i] = v),
-                        ),
+                      RadioGroup<int>(
+                        onChanged: (v) {
+                          if (v != null) setState(() => _answers[i] = v);
+                        },
+                        child: Column(children: [
+                          for (var oi = 0; oi < options.length; oi++)
+                            RadioListTile<int>(
+                              dense: true,
+                              title: Text('${options[oi]}'),
+                              value: oi,
+                            ),
+                        ]),
+                      ),
                     ],
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/ai/presentation/ai_assistant_page.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/channel/presentation/channel_page.dart';
 import '../../features/channel/presentation/create_channel_page.dart';
@@ -13,6 +14,7 @@ import '../../features/editor/presentation/video_editor_page.dart';
 import '../../features/fnf/presentation/fnf_page.dart';
 import '../../features/games/presentation/game_creator_page.dart';
 import '../../features/games/presentation/game_player_page.dart';
+import '../../features/games/presentation/games_page.dart';
 import '../../features/games/presentation/tic_tac_toe_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/learning/presentation/course_detail_page.dart';
@@ -26,7 +28,11 @@ import '../../features/live/presentation/live_room_page.dart';
 import '../../features/notifications/presentation/notifications_page.dart';
 import '../../features/profile/presentation/edit_profile_page.dart';
 import '../../features/profile/presentation/profile_page.dart';
+import '../../features/rewards/presentation/rewards_page.dart';
 import '../../features/search/presentation/search_page.dart';
+import '../../features/settings/presentation/blocked_users_page.dart';
+import '../../features/settings/presentation/help_page.dart';
+import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shorts/presentation/shorts_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
 import '../../features/tv/presentation/tv_page.dart';
@@ -51,6 +57,11 @@ class AppRouter {
       ),
       GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
       GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage()),
+      GoRoute(path: '/ai', builder: (_, __) => const AiAssistantPage()),
+      GoRoute(path: '/rewards', builder: (_, __) => const RewardsPage()),
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
+      GoRoute(path: '/help', builder: (_, __) => const HelpPage()),
+      GoRoute(path: '/blocked', builder: (_, __) => const BlockedUsersPage()),
       GoRoute(path: '/create/video',
           builder: (_, __) => const VideoUploadPage(isShort: false)),
       GoRoute(path: '/create/short',
@@ -81,7 +92,6 @@ class AppRouter {
       GoRoute(path: '/group/create', builder: (_, __) => const CreateGroupPage()),
       GoRoute(path: '/group/info/:id', builder: (_, state) =>
           GroupInfoPage(groupId: state.pathParameters['id']!)),
-      // ---- Phase 6: Learning ----
       GoRoute(path: '/learning', builder: (_, __) => const LearningPage()),
       GoRoute(path: '/learning/course/:id', builder: (_, state) =>
           CourseDetailPage(courseId: state.pathParameters['id']!)),
@@ -96,7 +106,6 @@ class AppRouter {
         );
       }),
       GoRoute(path: '/course/create', builder: (_, __) => const CreateCoursePage()),
-      // ---- Phase 7: Games ----
       GoRoute(path: '/games', builder: (_, __) => const GamesPage()),
       GoRoute(path: '/game/play/:id', builder: (_, state) =>
           GamePlayerPage(gameId: state.pathParameters['id']!)),
@@ -105,7 +114,6 @@ class AppRouter {
       GoRoute(path: '/game/create', builder: (_, __) => const GameCreatorPage()),
       GoRoute(path: '/game/create/:id', builder: (_, state) =>
           GameCreatorPage(gameId: state.pathParameters['id'])),
-      // ---- Phase 8: Live + TV ----
       GoRoute(path: '/live', builder: (_, __) => const LiveListPage()),
       GoRoute(path: '/live/go', builder: (_, __) => const GoLivePage()),
       GoRoute(path: '/live/:id', builder: (_, state) {
@@ -130,7 +138,6 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final index = _paths.indexWhere((p) => location.startsWith(p));
-
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(

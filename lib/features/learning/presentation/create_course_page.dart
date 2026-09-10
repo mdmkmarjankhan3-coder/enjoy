@@ -30,7 +30,11 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         thumbnailUrl: _thumbUrl,
         lessons: [
           for (final l in _lessons)
-            {'title': l.title.text, 'content': l.content.text, 'video_url': l.videoUrl}
+            {
+              'title': l.title.text,
+              'content': l.content.text,
+              'video_url': l.videoUrl,
+            }
         ],
         quizQuestions: [
           for (final q in _questions)
@@ -55,7 +59,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             onTap: () async {
               final img = await MediaPicker.pickImage();
               if (img != null) {
-                final r = await CloudinaryService.uploadImage(img.bytes, img.name);
+                final r =
+                    await CloudinaryService.uploadImage(img.bytes, img.name);
                 setState(() => _thumbUrl = r['url']);
               }
             },
@@ -67,15 +72,18 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   : Image.network(_thumbUrl!, fit: BoxFit.cover),
             ),
           ),
-          TextField(controller: _title,
+          TextField(
+              controller: _title,
               decoration: const InputDecoration(labelText: 'Course Title *')),
-          TextField(controller: _desc,
+          TextField(
+              controller: _desc,
               decoration: const InputDecoration(labelText: 'Description')),
           DropdownButtonFormField<String>(
             initialValue: _category,
             decoration: const InputDecoration(labelText: 'Category'),
-            items: const ['Education', 'Programming', 'Design', 'Business', 'Other']
-                .map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+            items: const [
+              'Education', 'Programming', 'Design', 'Business', 'Other'
+            ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
             onChanged: (v) => setState(() => _category = v!),
           ),
           const SizedBox(height: 16),
@@ -94,7 +102,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                 child: Column(children: [
                   TextField(
                     controller: _lessons[i].title,
-                    decoration: InputDecoration(labelText: 'Lesson ${i + 1} title'),
+                    decoration:
+                        InputDecoration(labelText: 'Lesson ${i + 1} title'),
                   ),
                   TextField(
                     controller: _lessons[i].content,
@@ -111,7 +120,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                       onPressed: () async {
                         final v = await MediaPicker.pickVideo();
                         if (v != null) {
-                          final r = await CloudinaryService.uploadVideo(v.bytes, v.name);
+                          final r = await CloudinaryService.uploadVideo(
+                              v.bytes, v.name);
                           setState(() => _lessons[i].videoUrl = r['url']);
                         }
                       },
@@ -126,8 +136,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             Text('📝 Quiz', style: Theme.of(context).textTheme.titleMedium),
             const Spacer(),
             TextButton(
-              onPressed: () => setState(() =>
-                  _questions.add(_QuestionDraft())),
+              onPressed: () =>
+                  setState(() => _questions.add(_QuestionDraft())),
               child: const Text('+ Question'),
             ),
           ]),
@@ -140,22 +150,26 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                     controller: _questions[i].q,
                     decoration: const InputDecoration(labelText: 'Question'),
                   ),
-                  for (var oi = 0; oi < _questions[i].options.length; oi++)
-                    Row(children: [
-                      Radio<int>(
-                        value: oi,
-                        groupValue: _questions[i].answer,
-                        onChanged: (v) =>
-                            setState(() => _questions[i].answer = v!),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _questions[i].options[oi],
-                          decoration: InputDecoration(
-                              labelText: 'Option ${oi + 1} (radio = correct)'),
-                        ),
-                      ),
+                  RadioGroup<int>(
+                    onChanged: (v) {
+                      if (v != null) {
+                        setState(() => _questions[i].answer = v);
+                      }
+                    },
+                    child: Column(children: [
+                      for (var oi = 0; oi < _questions[i].options.length; oi++)
+                        Row(children: [
+                          Radio<int>(value: oi),
+                          Expanded(
+                            child: TextField(
+                              controller: _questions[i].options[oi],
+                              decoration: InputDecoration(
+                                  labelText: 'Option ${oi + 1} (radio = correct)'),
+                            ),
+                          ),
+                        ]),
                     ]),
+                  ),
                 ]),
               ),
             ),
@@ -176,7 +190,11 @@ class _LessonDraft {
 
 class _QuestionDraft {
   final q = TextEditingController();
-  final options = [TextEditingController(), TextEditingController(),
-      TextEditingController(), TextEditingController()];
+  final options = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
   int answer = 0;
 }

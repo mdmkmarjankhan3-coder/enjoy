@@ -3,6 +3,11 @@ import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'services/supabase_service.dart';
 
+/// ⚙️ Appearance control (Settings থেকে পরিবর্তন হয়)
+class ThemeController {
+  static final mode = ValueNotifier<ThemeMode>(ThemeMode.system);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseService.initialize();
@@ -14,13 +19,16 @@ class EnjoyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'ENJOY',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      routerConfig: AppRouter.router,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.mode,
+      builder: (_, mode, __) => MaterialApp.router(
+        title: 'ENJOY',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: mode,
+        routerConfig: AppRouter.router,
+      ),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../services/games_service.dart';
 
 class GamePlayerPage extends StatefulWidget {
@@ -58,7 +57,10 @@ class _GamePlayerPageState extends State<GamePlayerPage> {
   Future<void> _end() async {
     _tick?.cancel();
     _spawner?.cancel();
-    setState(() { _running = false; _target = -1; });
+    setState(() {
+      _running = false;
+      _target = -1;
+    });
     await GamesService.recordSession(widget.gameId, _score, 'played');
     if (mounted) {
       await showDialog(
@@ -68,7 +70,10 @@ class _GamePlayerPageState extends State<GamePlayerPage> {
           content: Text('Score: $_score'),
           actions: [
             TextButton(
-                onPressed: () { Navigator.pop(context); _start(); },
+                onPressed: () {
+                  Navigator.pop(context);
+                  _start();
+                },
                 child: const Text('Again')),
             TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -89,7 +94,9 @@ class _GamePlayerPageState extends State<GamePlayerPage> {
   @override
   Widget build(BuildContext context) {
     final g = _game;
-    if (g == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (g == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final config = g['config'] as Map<String, dynamic>? ?? {};
     final bg = _hex(config['bg'] as String?, const Color(0xFF1A1A2E));
     final targetColor = _hex(config['target'] as String?, const Color(0xFFFF3D5A));
@@ -139,10 +146,7 @@ class _GamePlayerPageState extends State<GamePlayerPage> {
           if (!_running)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: FilledButton(
-                onPressed: _start,
-                child: const Text('▶ Play'),
-              ),
+              child: FilledButton(onPressed: _start, child: const Text('▶ Play')),
             ),
           const Padding(
             padding: EdgeInsets.all(8),

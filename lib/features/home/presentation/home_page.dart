@@ -19,6 +19,8 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('🌟 ENJOY'),
           actions: [
+            IconButton(icon: const Icon(Icons.smart_toy),
+                onPressed: () => context.push('/ai')),
             IconButton(icon: const Icon(Icons.search),
                 onPressed: () => context.push('/search')),
             IconButton(icon: const Icon(Icons.tv),
@@ -58,8 +60,12 @@ class HomeSectionContent extends StatelessWidget {
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: FnfService.myFriends(),
           builder: (_, snap) {
-            if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-            if (snap.data!.isEmpty) return const Center(child: Text('এখনো কোনো FNF নেই'));
+            if (!snap.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snap.data!.isEmpty) {
+              return const Center(child: Text('এখনো কোনো FNF নেই'));
+            }
             return ListView.builder(
               itemCount: snap.data!.length,
               itemBuilder: (_, i) {
@@ -68,7 +74,8 @@ class HomeSectionContent extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundImage: f['avatar_url'] != null
                         ? NetworkImage(f['avatar_url']) : null,
-                    child: f['avatar_url'] == null ? const Icon(Icons.person) : null,
+                    child: f['avatar_url'] == null
+                        ? const Icon(Icons.person) : null,
                   ),
                   title: Text(f['name'] ?? ''),
                   subtitle: Text('@${f['username'] ?? ''}'),
@@ -81,7 +88,9 @@ class HomeSectionContent extends StatelessWidget {
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: FnfService.searchUsers(''),
           builder: (_, snap) {
-            if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+            if (!snap.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return ListView.builder(
               itemCount: snap.data!.length,
               itemBuilder: (_, i) {
@@ -90,7 +99,8 @@ class HomeSectionContent extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundImage: p['avatar_url'] != null
                         ? NetworkImage(p['avatar_url']) : null,
-                    child: p['avatar_url'] == null ? const Icon(Icons.person) : null,
+                    child: p['avatar_url'] == null
+                        ? const Icon(Icons.person) : null,
                   ),
                   title: Text(p['name'] ?? ''),
                   subtitle: Text('@${p['username'] ?? ''}'),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../services/cloudinary_service.dart';
 import '../../../services/games_service.dart';
 import '../../../services/media_picker.dart';
+import '../../ai/presentation/widgets/ai_components.dart';
 
 class GameCreatorPage extends StatefulWidget {
   const GameCreatorPage({super.key, this.gameId});
@@ -200,8 +201,11 @@ class _GameCreatorPageState extends State<GameCreatorPage> {
           ]),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('🤖 AI Game Creator — Phase 9-এ আসবে'))),
+            onPressed: () => showAiChatSheet(
+              context,
+              contextText:
+                  'Game idea: ${_title.text} — ${_desc.text}। Game config suggestion দাও',
+            ),
             icon: const Icon(Icons.smart_toy),
             label: const Text('🤖 AI Help'),
           ),
